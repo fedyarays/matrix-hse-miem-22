@@ -3,10 +3,10 @@ import numpy
 
 class Matrix:
     def __init__(self, matrix: list): # Принимает массив как аргумент
-        self.matrix = matrix
         for i in range(len(matrix) - 1):
             if len(matrix[i]) != len(matrix[i + 1]): # Двумерный массив не является матрицей, если длины его элементов разные
                 raise ValueError("Несуществующая матрица")
+        self.matrix = matrix
 
     def __add__(self, other): # Сложение матрицы
         try:
@@ -32,7 +32,7 @@ class Matrix:
 
     def __mul__(self, other): # Умножение матрицы
         if isinstance(other, int) or isinstance(other, float):  # Умножение на число
-            matrix = copy.deepcopy(self.to_list()) # Создаём независимую копию исходного массива
+            matrix = copy.deepcopy(self.to_list()) # Создаём копию исходного массива
             for i in range(len(matrix)):
                 matrix[i] = [x * other for x in matrix[i]] # Записываем в копию массива произведение элемента и числа
             return Matrix(matrix)
@@ -41,44 +41,49 @@ class Matrix:
             size_matrix = len(self.to_list())
             c = [[] for _ in range(size_matrix)] # Создаём пустой двумерный массив
             for i in range(size_matrix ** 2):
-                t_matrix = other.trans().matrix  # Транспонируем матрицу, чтобы умножать строку на строку
+                t_matrix = other.trans().matrix  # Транспонируем матрицу
                 c[i // size_matrix].append(sum(list(map( # Умножаем каждый элемент 1 матрицы на элемент 2 матрицы с тем же индексом
                                  lambda x, y: x * y,
                                  self.to_list()[i // size_matrix],
                                  t_matrix[i % size_matrix]))))
             return Matrix(c)
         except IndexError:
-            raise IndexError('Матрицы разных размеров')
+            raise IndexError("Матрицы разных размеров")
 
     def __getitem__(self, val): # Вывод элемента матрицы
         if isinstance(val, slice):
             return self.matrix[val]
+        else:
+            raise TypeError("Индексы должны иметь вид [x:y:]")
 
     def __pow__(self, power=-1): # Нахождение обратной матрицы
-        if self.det() == 0:
+        if self.__invert__() == 0:
             raise ZeroDivisionError("Обратной матрицы не существует")
         try:
             m = self.to_list()
             np_inverted = numpy.linalg.inv(m) # Нахождение обратной матрицы с помощью библиотеки numpy
-            inverted = numpy.array(np_inverted)
+            inverted = numpy.stack(np_inverted).reshape(len(m), len(m))
             return Matrix(inverted)
         except numpy.linalg.LinAlgError:
             raise ValueError("Матрица должна быть квадратной")
 
-    def get_copy(self): # Независимая копия матрицы
+    def get_copy(self): # Копия матрицы
         c = copy.deepcopy(self)
         return c
 
-    def det(self): # Детерминант матрицы
-        matrix = copy.deepcopy(self.to_list())
-        count = 0
-        if len(matrix) == 1:
-            return matrix[0][0]
+    def __invert__(self): # Детерминант матрицы
+        if len(self.to_list()) == len(self.to_list()[0]): # Проверка матрицы на квадратность
+            matrix = copy.deepcopy(self.to_list())
+            count = 0
+            if len(matrix) == 1:
+                return matrix[0][0]
+            else:
+                for i in range(len(matrix)):
+                    m = Matrix(matrix).delete(1, i + 1)
+                    count += matrix[0][i] * m.__invert__() * (-1) ** (i + 2) # Детерминант складывается из произведений по теореме Лапласа
+            return count
         else:
-            for i in range(len(matrix)):
-                m = Matrix(matrix).delete(1, i + 1)
-                count += matrix[0][i] * m.det() * (-1) ** (i + 2) # Детерминант складывается из произведений по теореме Лапласа
-        return count
+            raise ValueError("Матрица должна быть квадратной")
 
     def trans(self): # Транспонирование матрицы
         return Matrix(list(map(list, zip(*self.to_list())))) # Сменить строки на столбцы
@@ -113,7 +118,7 @@ class Matrix:
     def size(self): # Нахождение размера матрицы
         return f"{len(self.to_list())} строк, {len(self.to_list()[0])} столбцов"
 
-    def to_matrix(self): # Вывод матрицы в форме двумерного массива
+    def to_list(self): # Вывод матрицы в форме двумерного массива
         return self.matrix
 
 # ПРИМЕР РАБОТЫ
@@ -126,13 +131,38 @@ array1 = [[0, 1, 3, 4, 5, 6, 6],
 array2 = [[3, -5],
           [1, -2],]
 
+array3 = [[3, 3, 3, 3, 5, 6, 6],
+          [2, 1, 7, 66, 5, 9, 6],
+          [0, 1, 3, 70, 5, 6, 6],
+          [15, 1, 23, 431, 5, 9, 5]]
+
+array4 = [[3, 3, 3, 3, 5, 6, 6],
+          [0, 0, 7, 0, 5, 9, 6],
+          [121, 1, 3, 70, 43, 897, 57676],
+          [15, 1, 23, 431, 5, 9, 5]]
 
 mat1 = Matrix(array1)
 mat2 = Matrix(array2)
-mat_sum = mat1 + mat1
+mat3 = Matrix(array3)
+mat4 = Matrix(array4)
 
+mat_sum = mat1 + mat4
+mat_sum = mat1.__add__(mat4)
+
+mat_sub = mat1 - mat4
+mat_sub = mat1.__sub__(mat4)
+
+mat_mul = mat1 * mat3
+mat_mul = mat1.__mul__(mat3)
+
+mat_elem = mat1[1:2:]
+
+mat_inv = mat2 ** -1
+mat_inv = mat2.__pow__(-1)
+"""
 print(mat1.to_list())
 print(mat_sum.to_list())
 print(mat1.rang())
 print((mat2**-1).to_list())
 print(mat1[1:2:])
+"""
