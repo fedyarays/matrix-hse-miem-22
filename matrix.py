@@ -141,10 +141,10 @@ array4 = [[3, 3, 3, 3, 5, 6, 6],
           [121, 1, 3, 70, 43, 897, 57676],
           [15, 1, 23, 431, 5, 9, 5]]
 
-mat1 = Matrix(array1)
-mat2 = Matrix(array2)
-mat3 = Matrix(array3)
-mat4 = Matrix(array4)
+mat1 = Matrix(array1)  # Объект класса Matrix (матрица 1)
+mat2 = Matrix(array2)  # Объект класса Matrix (матрица 2)
+mat3 = Matrix(array3)  # Объект класса Matrix (матрица 3)
+mat4 = Matrix(array4)  # Объект класса Matrix (матрица 4)
 
 mat_sum = mat1 + mat4
 mat_sum = mat1.__add__(mat4)
