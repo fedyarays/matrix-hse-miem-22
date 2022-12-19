@@ -2,13 +2,15 @@ import copy
 import numpy
 
 class Matrix:
-    def __init__(self, matrix: list): # Принимает массив как аргумент
+    def __init__(self, matrix: list):
+        "Принимает массив как аргумент"
         for i in range(len(matrix) - 1):
             if len(matrix[i]) != len(matrix[i + 1]): # Двумерный массив не является матрицей, если длины его элементов разные
                 raise ValueError("Несуществующая матрица")
         self.matrix = matrix
 
-    def __add__(self, other): # Сложение матрицы
+    def __add__(self, other):
+        "Осуществляет сложение матриц. Возвращает матрицу"
         try:
             c = [] # Создаём пустой массив
             for i in range(len(self.to_list())):
@@ -19,7 +21,8 @@ class Matrix:
         except IndexError:  # Проверка на Index out of range
             raise IndexError("Матрицы разных размеров")
 
-    def __sub__(self, other): # Вычитание из матрицы
+    def __sub__(self, other):
+        "Осуществляет вычетание матриц. Возвращает матрицу"
         try:
             c = [] # Создаём пустой массив
             for i in range(len(self.to_list())):
@@ -30,7 +33,8 @@ class Matrix:
         except IndexError:  # Проверка на Index out of range
             raise IndexError("Матрицы разных размеров")
 
-    def __mul__(self, other): # Умножение матрицы
+    def __mul__(self, other):
+        "Осуществляет умножение матриц на число или матрицу. Возвращает матрицу"
         if isinstance(other, int) or isinstance(other, float):  # Умножение на число
             matrix = copy.deepcopy(self.to_list()) # Создаём копию исходного массива
             for i in range(len(matrix)):
@@ -50,13 +54,15 @@ class Matrix:
         except IndexError:
             raise IndexError("Матрицы разных размеров")
 
-    def __getitem__(self, val): # Вывод элемента матрицы
+    def __getitem__(self, val):
+        "Осуществляет вывод элементов матрицы. Выводит строки матрицы"
         if isinstance(val, slice):
             return self.matrix[val]
         else:
             raise TypeError("Индексы должны иметь вид [x:y:]")
 
-    def __pow__(self, power=-1): # Нахождение обратной матрицы
+    def __pow__(self, power=-1):
+        "Осуществляет нахождение обратной матрицы. Возвращает матрицу"
         if self.__invert__() == 0:
             raise ZeroDivisionError("Обратной матрицы не существует")
         try:
@@ -67,11 +73,13 @@ class Matrix:
         except numpy.linalg.LinAlgError:
             raise ValueError("Матрица должна быть квадратной")
 
-    def get_copy(self): # Копия матрицы
+    def get_copy(self):
+        "Осуществляет создание копии матрицы. Возвращает матрицу"
         c = copy.deepcopy(self)
         return c
 
-    def __invert__(self): # Детерминант матрицы
+    def __invert__(self):
+        "Осуществляет определителя (детерминанта) матрицы. Возвращает число"
         if len(self.to_list()) == len(self.to_list()[0]): # Проверка матрицы на квадратность
             matrix = copy.deepcopy(self.to_list())
             count = 0
@@ -85,10 +93,12 @@ class Matrix:
         else:
             raise ValueError("Матрица должна быть квадратной")
 
-    def trans(self): # Транспонирование матрицы
+    def trans(self):
+        "Осуществляет транспонирование матрицы. Возвращает матрицу"
         return Matrix(list(map(list, zip(*self.to_list())))) # Сменить строки на столбцы
 
-    def delete(self, line, column): # Удаление строки и столбца матрицы
+    def delete(self, line, column):
+        "Осуществляет удаление строки или столбца матрицы. Возвращает матрицу"
         line -= 1
         column -= 1
         matrix = copy.deepcopy(self.to_list())
@@ -97,7 +107,8 @@ class Matrix:
             del matrix[item][column]
         return Matrix(matrix)
 
-    def permutation(self, line_column: str, number_i, number_j): # Перестановка строк или столбцов матрицы
+    def permutation(self, line_column: str, number_i, number_j):
+        "Осуществляет перестановку строк или столбцов матрицы. Возвращает матрицу"
         number_i -= 1
         number_j -= 1
         if line_column.lower() == "строка": # Поменять местами две строки
@@ -111,14 +122,17 @@ class Matrix:
             raise ValueError("Введите 'строка' или 'столбец'")
         return Matrix(matrix)
 
-    def rang(self): # Нахождение ранга матрицы
+    def rang(self):
+        "Осуществляет нахождение ранга матрицы. Возвращает число"
         mat = self.to_list()
         return numpy.linalg.matrix_rank(mat) # Нахождение ранга с помощью библиотеки numpy
 
     def size(self): # Нахождение размера матрицы
+        "Осуществляет нахождение размера матрицы. Возвращает число"
         return f"{len(self.to_list())} строк, {len(self.to_list()[0])} столбцов"
 
-    def to_list(self): # Вывод матрицы в форме двумерного массива
+    def to_list(self):
+        "Осуществляет вывод матрицы. Возвращает массив"
         return self.matrix
 
 # ПРИМЕР РАБОТЫ
@@ -165,4 +179,6 @@ print(mat_sum.to_list())
 print(mat1.rang())
 print((mat2**-1).to_list())
 print(mat1[1:2:])
+print(Matrix.__init__.__doc__)
+print(Matrix.to_list.__doc__)
 """
